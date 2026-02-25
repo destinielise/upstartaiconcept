@@ -1,0 +1,93 @@
+/**
+ * Polaris Design Token Bridge
+ * Maps Shopify Polaris token names to this project's design system variables.
+ * All Polaris-pattern components reference these tokens.
+ */
+:root {
+  /* ─── Spacing (base-4 scale) ──────────────────────────────────── */
+  --p-space-025: 1px;
+  --p-space-050: 2px;
+  --p-space-100: 4px;
+  --p-space-150: 6px;
+  --p-space-200: 8px;
+  --p-space-300: 12px;
+  --p-space-400: 16px;
+  --p-space-500: 20px;
+  --p-space-600: 24px;
+  --p-space-800: 32px;
+  --p-space-1000: 40px;
+  --p-space-1200: 48px;
+  --p-space-1600: 64px;
+
+  /* ─── Color – Backgrounds ──────────────────────────────────────── */
+  --p-color-bg:                     #f6f6f7;          /* page background */
+  --p-color-bg-surface:             var(--background); /* card / modal */
+  --p-color-bg-surface-secondary:   #f6f6f7;
+  --p-color-bg-surface-tertiary:    var(--secondary);
+  --p-color-bg-fill-brand:          var(--foreground); /* primary action fill */
+  --p-color-bg-fill-secondary:      var(--secondary);
+  --p-color-bg-fill-success:        var(--success);
+  --p-color-bg-fill-critical:       var(--destructive);
+  --p-color-bg-fill-warning:        var(--warning);
+  --p-color-bg-fill-info:           var(--info);
+  --p-color-bg-fill-disabled:       var(--muted);
+
+  /* ─── Color – Text ─────────────────────────────────────────────── */
+  --p-color-text:           var(--foreground);
+  --p-color-text-secondary: var(--muted-foreground);
+  --p-color-text-disabled:  var(--muted-foreground);
+  --p-color-text-brand:     var(--ring);             /* interactive / link */
+  --p-color-text-critical:  var(--destructive-foreground);
+  --p-color-text-success:   var(--success-foreground);
+  --p-color-text-warning:   var(--warning-foreground);
+  --p-color-text-info:      var(--info-foreground);
+  --p-color-text-on-color:  var(--primary-foreground);
+
+  /* ─── Color – Borders ──────────────────────────────────────────── */
+  --p-color-border:           var(--border);
+  --p-color-border-secondary: var(--border);
+  --p-color-border-brand:     var(--ring);
+  --p-color-border-critical:  var(--destructive-foreground);
+
+  /* ─── Typography ───────────────────────────────────────────────── */
+  --p-font-family-sans: var(--font-family-primary);
+  --p-font-family-mono: var(--font-family-mono);
+  --p-font-size-body-sm:   var(--text-sm);
+  --p-font-size-body-md:   var(--text-base);
+  --p-font-size-body-lg:   var(--text-subtitle);
+  --p-font-size-heading-xs: var(--text-sm);
+  --p-font-size-heading-sm: var(--text-base);
+  --p-font-size-heading-md: var(--text-subtitle);
+  --p-font-size-heading-lg: var(--text-h4);
+  --p-font-size-heading-xl: var(--text-h3);
+  --p-font-size-heading-2xl: var(--text-h2);
+  --p-font-weight-medium: var(--font-weight-medium);
+  --p-font-weight-semibold: var(--font-weight-semibold);
+  --p-font-weight-bold: var(--font-weight-bold);
+
+  /* ─── Border Radius ────────────────────────────────────────────── */
+  --p-border-radius-050: 2px;
+  --p-border-radius-100: 4px;
+  --p-border-radius-150: 6px;
+  --p-border-radius-200: var(--radius);   /* 8px */
+  --p-border-radius-300: 12px;
+  --p-border-radius-400: 16px;
+  --p-border-radius-full: 9999px;
+
+  /* ─── Shadows ───────────────────────────────────────────────────── */
+  --p-shadow-xs:   0px 1px 0px rgba(26, 26, 26, 0.07);
+  --p-shadow-sm:   0px 1px 1px rgba(26, 26, 26, 0.16);
+  --p-shadow-md:   0px 1px 1px rgba(26, 26, 26, 0.07), 0px 2px 4px -1px rgba(26, 26, 26, 0.16);
+  --p-shadow-card: var(--p-shadow-xs);
+  --p-shadow-button: 0px 1px 0px rgba(26, 26, 26, 0.07), inset 0px -1px 0px rgba(26, 26, 26, 0.16);
+  --p-shadow-button-primary: inset 0px -1px 0px rgba(0, 0, 0, 0.30), inset 0px 1px 0px rgba(255, 255, 255, 0.16);
+
+  /* ─── Motion ────────────────────────────────────────────────────── */
+  --p-motion-duration-50:  50ms;
+  --p-motion-duration-100: 100ms;
+  --p-motion-duration-150: 150ms;
+  --p-motion-duration-200: 200ms;
+  --p-motion-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --p-motion-ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --p-motion-ease-out: cubic-bezier(0, 0, 0.58, 1);
+}
