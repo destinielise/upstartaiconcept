@@ -1,5 +1,20 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ArrowUpDown, Search, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
+import {
+  Badge,
+  BlockStack,
+  Button,
+  Card,
+  InlineStack,
+  IndexTable,
+  Pagination,
+  Text,
+  useIndexResourceState,
+} from "@shopify/polaris";
 
 const transactions = [
   { id: 1,  payoutDate: "May 21, 2025", orderDate: "May 1 – May 19, 2025",   bankAccount: "JPMO...(7523)", status: "Scheduled", fees: "-$62.52",  amount: "$12,401.58", currency: "USD" },
@@ -22,285 +37,143 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "month", label: "This month" },
 ];
 
-/* ── Polaris Badge ──────────────────────────────────────────────────── */
-function PolarisBadge({ children, tone }: { children: React.ReactNode; tone?: "attention" | "success" }) {
-  const styles: Record<string, { bg: string; text: string }> = {
-    attention: { bg: "var(--p-color-bg-fill-warning)", text: "var(--p-color-text-warning)" },
-    success:   { bg: "var(--p-color-bg-fill-success)", text: "var(--p-color-text-success)" },
-    default:   { bg: "var(--p-color-bg-fill-secondary)", text: "var(--p-color-text-secondary)" },
-  };
-  const s = styles[tone ?? "default"];
-  return (
-    <span style={{
-      display: "inline-flex",
-      alignItems: "center",
-      backgroundColor: s.bg,
-      color: s.text,
-      borderRadius: "var(--p-border-radius-full)",
-      padding: "var(--p-space-050) var(--p-space-200)",
-      fontFamily: "var(--p-font-family-sans)",
-      fontSize: "var(--p-font-size-body-sm)",
-      fontWeight: "var(--p-font-weight-medium)",
-      lineHeight: 1.5,
-      whiteSpace: "nowrap",
-    }}>
-      {children}
-    </span>
-  );
-}
-
-/* ── Polaris Button (slim) ──────────────────────────────────────────── */
-function SlimButton({
-  children,
-  active,
-  icon,
-  onClick,
-}: {
-  children?: React.ReactNode;
-  active?: boolean;
-  icon?: React.ReactNode;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "var(--p-space-150)",
-        padding: "var(--p-space-150) var(--p-space-300)",
-        borderRadius: "var(--p-border-radius-150)",
-        border: "1px solid var(--p-color-border)",
-        backgroundColor: active ? "var(--p-color-bg-fill-secondary)" : "var(--p-color-bg-surface)",
-        color: active ? "var(--p-color-text)" : "var(--p-color-text-secondary)",
-        fontFamily: "var(--p-font-family-sans)",
-        fontSize: "var(--p-font-size-body-sm)",
-        fontWeight: active ? "var(--p-font-weight-semibold)" : "var(--p-font-weight-medium)",
-        lineHeight: 1.5,
-        cursor: "pointer",
-        boxShadow: "var(--p-shadow-button)",
-        transition: `all var(--p-motion-duration-150) var(--p-motion-ease)`,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {icon}
-      {children}
-    </button>
-  );
-}
-
-/* ── IndexTable column headers ──────────────────────────────────────── */
-const thBase: React.CSSProperties = {
-  padding: "var(--p-space-300) var(--p-space-400)",
-  fontFamily: "var(--p-font-family-sans)",
-  fontSize: "var(--p-font-size-body-sm)",
-  fontWeight: "var(--p-font-weight-semibold)",
-  color: "var(--p-color-text-secondary)",
-  backgroundColor: "var(--p-color-bg-surface-secondary)",
-  borderBottom: "1px solid var(--p-color-border)",
-  whiteSpace: "nowrap",
-  lineHeight: 1.5,
-};
-
-const tdBase: React.CSSProperties = {
-  padding: "var(--p-space-300) var(--p-space-400)",
-  fontFamily: "var(--p-font-family-sans)",
-  fontSize: "var(--p-font-size-body-md)",
-  fontWeight: "var(--p-font-weight-medium)",
-  color: "var(--p-color-text)",
-  borderBottom: "1px solid var(--p-color-border)",
-  lineHeight: 1.5,
-};
-
 export function PayoutsTable() {
   const [activeTab, setActiveTab] = useState<TabId>("all");
+  const resourceName = {
+    singular: "payout",
+    plural: "payouts",
+  };
+
+  const { selectedResources, allResourcesSelected, handleSelectionChange } =
+    useIndexResourceState(transactions);
+
+  const rowMarkup = transactions.map((tx, index) => {
+    const id = tx.id.toString();
+    const selected = selectedResources.includes(id);
+
+    return (
+      <IndexTable.Row
+        id={id}
+        key={id}
+        selected={selected}
+        position={index}
+      >
+        <IndexTable.Cell>
+          <Text as="span" variant="bodyMd" fontWeight="bold">
+            {tx.payoutDate}
+          </Text>
+        </IndexTable.Cell>
+        <IndexTable.Cell>{tx.orderDate}</IndexTable.Cell>
+        <IndexTable.Cell>{tx.bankAccount}</IndexTable.Cell>
+        <IndexTable.Cell>
+          <Badge tone={tx.status === "Scheduled" ? "attention" : undefined}>
+            {tx.status}
+          </Badge>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          <Text as="span" variant="bodyMd" tone="subdued" numeric>
+            {tx.fees}
+          </Text>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          <InlineStack align="end" gap="050">
+            <Text as="span" variant="bodyMd" fontWeight="bold" numeric>
+              {tx.amount}
+            </Text>
+            <Text as="span" variant="bodySm" tone="subdued">
+              {tx.currency}
+            </Text>
+          </InlineStack>
+        </IndexTable.Cell>
+      </IndexTable.Row>
+    );
+  });
 
   return (
-    /* Polaris Card with padding="0" */
-    <div style={{
-      backgroundColor: "var(--p-color-bg-surface)",
-      border: "1px solid var(--p-color-border)",
-      borderRadius: "var(--p-border-radius-300)",
-      boxShadow: "var(--p-shadow-card)",
-      overflow: "hidden",
-    }}>
-
-      {/* Toolbar — InlineStack align="space-between" */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: "var(--p-space-200)",
-        padding: "var(--p-space-300) var(--p-space-400)",
-        borderBottom: "1px solid var(--p-color-border)",
-      }}>
-
-        {/* View tabs — Polaris ButtonGroup variant="segmented" */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          border: "1px solid var(--p-color-border)",
-          borderRadius: "var(--p-border-radius-150)",
-          overflow: "hidden",
-          boxShadow: "var(--p-shadow-xs)",
-        }}>
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: "var(--p-space-150) var(--p-space-300)",
-                backgroundColor: activeTab === tab.id
-                  ? "var(--p-color-bg-fill-secondary)"
-                  : "var(--p-color-bg-surface)",
-                color: activeTab === tab.id
-                  ? "var(--p-color-text)"
-                  : "var(--p-color-text-secondary)",
-                fontFamily: "var(--p-font-family-sans)",
-                fontSize: "var(--p-font-size-body-sm)",
-                fontWeight: activeTab === tab.id
-                  ? "var(--p-font-weight-semibold)"
-                  : "var(--p-font-weight-medium)",
-                lineHeight: 1.5,
-                border: "none",
-                borderRight: "1px solid var(--p-color-border)",
-                cursor: "pointer",
-                transition: `all var(--p-motion-duration-150) var(--p-motion-ease)`,
-              }}
-              style-last={{ borderRight: "none" }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Action buttons — InlineStack gap="200" */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--p-space-200)" }}>
-          <SlimButton icon={<Search style={{ width: 14, height: 14 }} />}>
-            Search
-          </SlimButton>
-          <SlimButton icon={<SlidersHorizontal style={{ width: 14, height: 14 }} />}>
-            Filter
-          </SlimButton>
-          <SlimButton icon={<ArrowUpDown style={{ width: 14, height: 14 }} />}>
-            Sort
-          </SlimButton>
-        </div>
-      </div>
-
-      {/* IndexTable */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontFamily: "var(--p-font-family-sans)",
-        }}>
-          <thead>
-            <tr>
-              <th style={{ ...thBase, textAlign: "left", width: "15%" }}>Payout date</th>
-              <th style={{ ...thBase, textAlign: "left", width: "28%" }}>Order date</th>
-              <th style={{ ...thBase, textAlign: "left", width: "17%" }}>Bank account</th>
-              <th style={{ ...thBase, textAlign: "left", width: "14%" }}>Status</th>
-              <th style={{ ...thBase, textAlign: "right", width: "11%" }}>Fees</th>
-              <th style={{ ...thBase, textAlign: "right", width: "15%" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 4, cursor: "pointer" }}>
-                  Amount
-                  <ArrowUpDown style={{ width: 12, height: 12, opacity: 0.4 }} />
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map(tx => (
-              <tr
-                key={tx.id}
-                style={{ transition: `background-color var(--p-motion-duration-100) var(--p-motion-ease)` }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = "var(--p-color-bg-surface-secondary)")}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = "transparent")}
+    <Card>
+      <BlockStack gap="0">
+        <div
+          style={{
+            padding: "var(--p-space-300) var(--p-space-400)",
+            borderBottom: "1px solid var(--p-color-border)",
+          }}
+        >
+          <InlineStack align="space-between" blockAlign="center" gap="200">
+            <InlineStack gap="0">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid var(--p-color-border)",
+                  borderRadius: "var(--p-border-radius-150)",
+                  overflow: "hidden",
+                  boxShadow: "var(--p-shadow-xs)",
+                }}
               >
-                {/* Polaris Link */}
-                <td style={tdBase}>
-                  <a
-                    href="#"
-                    style={{
-                      color: "var(--p-color-text-brand)",
-                      fontFamily: "var(--p-font-family-sans)",
-                      fontSize: "var(--p-font-size-body-md)",
-                      fontWeight: "var(--p-font-weight-semibold)",
-                      textDecoration: "none",
-                    }}
-                    onMouseEnter={e => ((e.target as HTMLElement).style.textDecoration = "underline")}
-                    onMouseLeave={e => ((e.target as HTMLElement).style.textDecoration = "none")}
+                {TABS.map((tab) => (
+                  <Button
+                    key={tab.id}
+                    size="slim"
+                    variant={activeTab === tab.id ? "primary" : "secondary"}
+                    onClick={() => setActiveTab(tab.id)}
                   >
-                    {tx.payoutDate}
-                  </a>
-                </td>
-                <td style={{ ...tdBase, color: "var(--p-color-text)" }}>{tx.orderDate}</td>
-                <td style={{ ...tdBase, color: "var(--p-color-text)" }}>{tx.bankAccount}</td>
-                <td style={tdBase}>
-                  <PolarisBadge tone={tx.status === "Scheduled" ? "attention" : undefined}>
-                    {tx.status}
-                  </PolarisBadge>
-                </td>
-                <td style={{ ...tdBase, textAlign: "right", color: "var(--p-color-text-secondary)" }}>
-                  {tx.fees}
-                </td>
-                <td style={{ ...tdBase, textAlign: "right" }}>
-                  <span style={{ fontWeight: "var(--p-font-weight-semibold)" }}>{tx.amount}</span>
-                  {" "}
-                  <span style={{
-                    fontFamily: "var(--p-font-family-sans)",
-                    fontSize: "var(--p-font-size-body-sm)",
-                    color: "var(--p-color-text-secondary)",
-                    fontWeight: "var(--p-font-weight-medium)",
-                  }}>
-                    {tx.currency}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
+            </InlineStack>
 
-      {/* Pagination footer */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--p-space-100)",
-        padding: "var(--p-space-200)",
-        borderTop: "1px solid var(--p-color-border)",
-        backgroundColor: "var(--p-color-bg-surface-secondary)",
-      }}>
-        <button
-          disabled
+            <InlineStack gap="200">
+              <Button variant="secondary" size="slim">
+                <Search style={{ width: 14, height: 14, marginRight: 4 }} />
+                Search
+              </Button>
+              <Button variant="secondary" size="slim">
+                <SlidersHorizontal
+                  style={{ width: 14, height: 14, marginRight: 4 }}
+                />
+                Filter
+              </Button>
+              <Button variant="secondary" size="slim">
+                <ArrowUpDown
+                  style={{ width: 14, height: 14, marginRight: 4 }}
+                />
+                Sort
+              </Button>
+            </InlineStack>
+          </InlineStack>
+        </div>
+
+        <IndexTable
+          resourceName={resourceName}
+          itemCount={transactions.length}
+          selectedItemsCount={
+            allResourcesSelected ? "All" : selectedResources.length
+          }
+          onSelectionChange={handleSelectionChange}
+          headings={[
+            { title: "Payout date" },
+            { title: "Order date" },
+            { title: "Bank account" },
+            { title: "Status" },
+            { title: "Fees", alignment: "end" },
+            { title: "Amount", alignment: "end" },
+          ]}
+        >
+          {rowMarkup}
+        </IndexTable>
+
+        <div
           style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 28, height: 28,
-            backgroundColor: "var(--p-color-bg-surface)",
-            border: "1px solid var(--p-color-border)",
-            borderRadius: "var(--p-border-radius-100)",
-            cursor: "not-allowed",
-            opacity: 0.4,
+            borderTop: "1px solid var(--p-color-border)",
+            padding: "var(--p-space-200) var(--p-space-400)",
           }}
         >
-          <ChevronLeft style={{ width: 16, height: 16, color: "var(--p-color-text)" }} />
-        </button>
-        <button
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 28, height: 28,
-            backgroundColor: "var(--p-color-bg-surface)",
-            border: "1px solid var(--p-color-border)",
-            borderRadius: "var(--p-border-radius-100)",
-            cursor: "pointer",
-          }}
-        >
-          <ChevronRight style={{ width: 16, height: 16, color: "var(--p-color-text)" }} />
-        </button>
-      </div>
-    </div>
+          <InlineStack align="center" blockAlign="center">
+            <Pagination hasPrevious={false} hasNext={false} />
+          </InlineStack>
+        </div>
+      </BlockStack>
+    </Card>
   );
 }
