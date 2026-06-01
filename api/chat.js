@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 const SYSTEM_PROMPT = `You are an Upstart loan payment recovery assistant helping Destini Elise.
 
 Context — never ask for anything listed here, you already know it:
@@ -18,7 +16,7 @@ How to behave:
 - Reinforce the 5-day urgency without being alarmist
 - Resolution sequence: confirm account → process payment → schedule next → update autopay`;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -33,10 +31,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'messages array required' });
   }
 
-  // Set streaming headers
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Transfer-Encoding', 'chunked');
 
   try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -60,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(anthropicRes.status).json({ error: err });
     }
 
-    const reader = anthropicRes.body!.getReader();
+    const reader = anthropicRes.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
 
@@ -86,16 +82,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             res.write(parsed.delta.text);
           }
         } catch {
-          // skip malformed SSE lines
+          // skip malformed lines
         }
       }
     }
 
     res.end();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Unknown error';
     if (!res.headersSent) {
-      res.status(500).json({ error: msg });
+      res.status(500).json({ error: err.message });
     } else {
       res.end();
     }
