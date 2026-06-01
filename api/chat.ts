@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 export const config = { runtime: 'edge' };
 
 const SYSTEM_PROMPT = `You are an Upstart loan payment recovery assistant helping Destini Elise.
@@ -20,11 +18,7 @@ Your behavior:
 - When the user picks a payment option, confirm clearly and state next steps
 - When a payment is confirmed, give them a confirmation number and tell them what happens next
 - Sequence for full resolution: confirm payment account → process payment → schedule next → update autopay
-- Always reinforce the 5-day urgency when relevant without being alarmist
-
-Tone examples:
-- Good: "Got it — I'll process $250 from Chase x-5165 today and schedule $250 for May 30th. Your late fee will be waived."
-- Bad: "I understand you would like to make a payment. Could you please tell me which account you'd like to use?"`;
+- Always reinforce the 5-day urgency when relevant without being alarmist`;
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
@@ -33,7 +27,10 @@ export default async function handler(req: Request): Promise<Response> {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response('ANTHROPIC_API_KEY not set', { status: 500 });
+    return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   let messages: { role: 'user' | 'assistant'; content: string }[];
@@ -41,34 +38,70 @@ export default async function handler(req: Request): Promise<Response> {
     const body = await req.json();
     messages = body.messages;
   } catch {
-    return new Response('Invalid JSON', { status: 400 });
+    return new Response('Invalid JSON body', { status: 400 });
   }
 
-  const client = new Anthropic({ apiKey });
+  // Call the Anthropic API directly via fetch (most reliable for Edge runtime)
+  const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5',
+      max_tokens: 512,
+      system: SYSTEM_PROMPT,
+      stream: true,
+      messages,
+    }),
+  });
 
+  if (!anthropicRes.ok) {
+    const err = await anthropicRes.text();
+    return new Response(JSON.stringify({ error: err }), {
+      status: anthropicRes.status,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Pass the SSE stream through, extracting only text deltas
   const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
   const stream = new ReadableStream({
     async start(controller) {
-      try {
-        const anthropicStream = client.messages.stream({
-          model: 'claude-opus-4-8',
-          max_tokens: 512,
-          system: SYSTEM_PROMPT,
-          thinking: { type: 'adaptive' },
-          messages,
-        });
+      const reader = anthropicRes.body!.getReader();
+      let buffer = '';
 
-        for await (const chunk of anthropicStream) {
-          if (
-            chunk.type === 'content_block_delta' &&
-            chunk.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (
+                parsed.type === 'content_block_delta' &&
+                parsed.delta?.type === 'text_delta' &&
+                parsed.delta?.text
+              ) {
+                controller.enqueue(encoder.encode(parsed.delta.text));
+              }
+            } catch {
+              // skip malformed lines
+            }
           }
         }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Unknown error';
-        controller.enqueue(encoder.encode(`\n[Error: ${msg}]`));
       } finally {
         controller.close();
       }
