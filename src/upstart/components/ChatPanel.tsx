@@ -100,7 +100,10 @@ export function ChatPanel({ open, onClose, mobile = false }: ChatPanelProps) {
         signal: abortRef.current.signal,
       });
 
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`${res.status}: ${errText}`);
+      }
       if (!res.body) throw new Error('No response body');
 
       const reader = res.body.getReader();
@@ -122,7 +125,8 @@ export function ChatPanel({ open, onClose, mobile = false }: ChatPanelProps) {
       if ((err as Error).name !== 'AbortError') {
         setMessages(prev => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: "Sorry, something went wrong. Please try again." };
+          const errMsg = (err as Error).message || 'Unknown error';
+          updated[updated.length - 1] = { role: 'assistant', content: `Error: ${errMsg}` };
           return updated;
         });
       }
