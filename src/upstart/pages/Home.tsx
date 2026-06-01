@@ -61,9 +61,9 @@ export function Home() {
             </p>
           </div>
 
-          {/* DIV 2 — White, ~206px. Card has negative margin to overlap into the red above */}
+          {/* DIV 2 — White. Card pulls up with negative margin to straddle the red/white boundary */}
           <div className="bg-white" style={{ minHeight: '206px', paddingBottom: '32px' }}>
-            <div className="mx-auto px-4 md:px-6" style={{ maxWidth: '720px', marginTop: '-40px' }}>
+            <div className="mx-auto px-4 md:px-6" style={{ maxWidth: '720px', marginTop: '-52px' }}>
               <div className="bg-white rounded-2xl" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.14)', padding: 'clamp(20px, 4vw, 28px)' }}>
                 <div className="flex flex-col gap-4">
                   {/* Top row: amount left, button right */}

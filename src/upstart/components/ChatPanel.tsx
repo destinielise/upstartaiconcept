@@ -179,15 +179,31 @@ export function ChatPanel({ open, onClose, mobile = false }: ChatPanelProps) {
         <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: -1 }} />
       )}
 
-      {/* Mobile drag handle */}
-      {mobile && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 9999, background: '#D5ECE9' }} />
-        </div>
-      )}
-
-      {/* Close button */}
-      <button onClick={onClose} style={{ position: 'absolute', top: mobile ? 20 : 16, right: 16, zIndex: 10, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, color: '#9BA0A0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+      {/* Top bar: drag handle (mobile) + X button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 4px', flexShrink: 0 }}>
+        {mobile ? (
+          <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
+            <div style={{ width: 36, height: 4, borderRadius: 9999, background: '#B2D8D5' }} />
+          </div>
+        ) : <div />}
+        <button
+          onClick={onClose}
+          style={{
+            width: 32, height: 32, borderRadius: '50%',
+            border: '1.5px solid #00857C',
+            background: 'transparent',
+            cursor: 'pointer',
+            fontSize: 16,
+            color: '#00857C',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            marginLeft: mobile ? 0 : 'auto',
+          }}
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
 
       {/* Scrollable area */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
