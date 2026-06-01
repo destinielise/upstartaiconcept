@@ -51,49 +51,58 @@ export function Home() {
         {/* ── MAIN SCROLL AREA ── */}
         <div className="flex-1 overflow-y-auto min-w-0">
 
-          {/* Red hero — contains text + card, just like Figma */}
-          <div className="bg-[#D93025]" style={{ paddingTop: '40px', paddingBottom: '48px' }}>
-            {/* Banner text */}
-            <p className="text-white font-semibold text-center px-6 mb-6" style={{ fontSize: 'clamp(15px, 2vw, 18px)' }}>
+          {/* DIV 1 — Red, text only */}
+          <div
+            className="bg-[#D93025] flex items-center justify-center"
+            style={{ height: '160px', padding: '0 24px' }}
+          >
+            <p className="text-white font-semibold text-center" style={{ fontSize: 'clamp(15px, 2vw, 18px)' }}>
               Hi Destini, let's get you back on track.
             </p>
+          </div>
 
-            {/* Card lives inside the red section */}
-            <div className="mx-auto px-4 md:px-6" style={{ maxWidth: '720px' }}>
+          {/* DIV 2 — White, ~206px. Card has negative margin to overlap into the red above */}
+          <div className="bg-white" style={{ minHeight: '206px', paddingBottom: '32px' }}>
+            <div className="mx-auto px-4 md:px-6" style={{ maxWidth: '720px', marginTop: '-40px' }}>
               <div className="bg-white rounded-2xl" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.14)', padding: 'clamp(20px, 4vw, 28px)' }}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex flex-col gap-3 flex-1 min-w-0">
+                <div className="flex flex-col gap-4">
+                  {/* Top row: amount left, button right */}
+                  <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-bold text-neutral-900 leading-none" style={{ fontSize: 'clamp(32px, 5vw, 40px)' }}>$500</p>
                       <p className="text-neutral-500 mt-1.5" style={{ fontSize: '13px' }}>Pay by June 5th to avoid a late fee</p>
                     </div>
-                    <div className="flex items-end gap-2 md:gap-3">
-                      {STREAK.map(s => (
-                        <div key={s.month} className="flex flex-col items-center gap-1">
-                          <StreakDot paid={s.paid} />
-                          <span className="text-xs text-neutral-400">{s.month}</span>
-                        </div>
-                      ))}
+                    <button
+                      onClick={() => setChatOpen(true)}
+                      className="flex-shrink-0 font-semibold rounded-lg transition-colors text-white"
+                      style={{ background: '#DC2626', padding: '10px 20px', fontSize: '13px', whiteSpace: 'nowrap' }}
+                      onMouseOver={e => (e.currentTarget.style.background = '#B91C1C')}
+                      onMouseOut={e => (e.currentTarget.style.background = '#DC2626')}
+                    >
+                      Make a payment
+                    </button>
+                  </div>
+
+                  {/* Streak dots */}
+                  <div className="flex items-end gap-2 md:gap-4">
+                    {STREAK.map(s => (
+                      <div key={s.month} className="flex flex-col items-center gap-1">
+                        <StreakDot paid={s.paid} />
+                        <span className="text-xs text-neutral-400">{s.month}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Progress bar — full card width */}
+                  <div className="w-full">
+                    <div className="flex justify-between text-xs text-neutral-400 mb-1.5">
+                      <span>$6,600</span>
+                      <span>Payoff: 12/11/26</span>
                     </div>
-                    <div className="w-full">
-                      <div className="flex justify-between text-xs text-neutral-400 mb-1.5">
-                        <span>$6,600</span>
-                        <span>Payoff: 12/11/26</span>
-                      </div>
-                      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#E2E4E4' }}>
-                        <div className="h-full rounded-full" style={{ width: '75%', background: '#00857C' }} />
-                      </div>
+                    <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#E2E4E4' }}>
+                      <div className="h-full rounded-full" style={{ width: '75%', background: '#00857C' }} />
                     </div>
                   </div>
-                  <button
-                    onClick={() => setChatOpen(true)}
-                    className="flex-shrink-0 font-semibold rounded-lg transition-colors text-white"
-                    style={{ background: '#DC2626', padding: '10px 18px', fontSize: '13px', whiteSpace: 'nowrap' }}
-                    onMouseOver={e => (e.currentTarget.style.background = '#B91C1C')}
-                    onMouseOut={e => (e.currentTarget.style.background = '#DC2626')}
-                  >
-                    Make a payment
-                  </button>
                 </div>
               </div>
             </div>
@@ -128,9 +137,9 @@ export function Home() {
                           className="flex-shrink-0 text-white font-semibold rounded-lg text-center"
                           style={{
                             background: '#00857C',
-                            padding: '9px 16px',
-                            fontSize: 'clamp(11px, 1.2vw, 13px)',
-                            whiteSpace: 'nowrap',
+                            width: '210px',
+                            padding: '10px 0',
+                            fontSize: '13px',
                           }}
                         >
                           {opt.cta}
