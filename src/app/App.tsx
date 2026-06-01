@@ -21,7 +21,7 @@ export default function App() {
         <Layout>
           <Layout.Section>
             <InlineGrid
-              columns={{ xs: 1, sm: 2, md: 3 }}
+              columns={{ xs: 1, sm: 1, md: 2, lg: 3 }}
               gap="400"
             >
               <HourlySalesChart />

@@ -1,20 +1,17 @@
 import { useState } from "react";
 import {
-  ArrowUpDown,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
-import {
   Badge,
   BlockStack,
-  Button,
   Card,
-  InlineStack,
+  IndexFilters,
   IndexTable,
+  InlineStack,
   Pagination,
   Text,
   useIndexResourceState,
+  useSetIndexFiltersMode,
 } from "@shopify/polaris";
+import type { IndexFiltersProps, TabProps } from "@shopify/polaris";
 
 const transactions = [
   { id: 1,  payoutDate: "May 21, 2025", orderDate: "May 1 – May 19, 2025",   bankAccount: "JPMO...(7523)", status: "Scheduled", fees: "-$62.52",  amount: "$12,401.58", currency: "USD" },
@@ -38,7 +35,27 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 export function PayoutsTable() {
-  const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [queryValue, setQueryValue] = useState("");
+
+  const sortOptions: IndexFiltersProps["sortOptions"] = [
+    {
+      label: "Payout date",
+      value: "payoutDate desc",
+      directionLabel: "Newest first",
+    },
+    {
+      label: "Payout date",
+      value: "payoutDate asc",
+      directionLabel: "Oldest first",
+    },
+  ];
+  const [sortSelected, setSortSelected] = useState<string[]>([
+    "payoutDate desc",
+  ]);
+
+  const { mode, setMode } = useSetIndexFiltersMode();
+
   const resourceName = {
     singular: "payout",
     plural: "payouts",
@@ -90,59 +107,33 @@ export function PayoutsTable() {
   });
 
   return (
-    <Card>
+    <Card padding="0">
       <BlockStack gap="0">
-        <div
-          style={{
-            padding: "var(--p-space-300) var(--p-space-400)",
-            borderBottom: "1px solid var(--p-color-border)",
-          }}
-        >
-          <InlineStack align="space-between" blockAlign="center" gap="200">
-            <InlineStack gap="0">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  border: "1px solid var(--p-color-border)",
-                  borderRadius: "var(--p-border-radius-150)",
-                  overflow: "hidden",
-                  boxShadow: "var(--p-shadow-xs)",
-                }}
-              >
-                {TABS.map((tab) => (
-                  <Button
-                    key={tab.id}
-                    size="slim"
-                    variant={activeTab === tab.id ? "primary" : "secondary"}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    {tab.label}
-                  </Button>
-                ))}
-              </div>
-            </InlineStack>
-
-            <InlineStack gap="200">
-              <Button variant="secondary" size="slim">
-                <Search style={{ width: 14, height: 14, marginRight: 4 }} />
-                Search
-              </Button>
-              <Button variant="secondary" size="slim">
-                <SlidersHorizontal
-                  style={{ width: 14, height: 14, marginRight: 4 }}
-                />
-                Filter
-              </Button>
-              <Button variant="secondary" size="slim">
-                <ArrowUpDown
-                  style={{ width: 14, height: 14, marginRight: 4 }}
-                />
-                Sort
-              </Button>
-            </InlineStack>
-          </InlineStack>
-        </div>
+        <IndexFilters
+          sortOptions={sortOptions}
+          sortSelected={sortSelected}
+          onSort={setSortSelected}
+          queryValue={queryValue}
+          queryPlaceholder="Search payouts"
+          onQueryChange={setQueryValue}
+          onQueryClear={() => setQueryValue("")}
+          tabs={
+            TABS.map(
+              (tab, index): TabProps =>
+                ({
+                  content: tab.label,
+                  id: tab.id,
+                  index,
+                } satisfies TabProps),
+            ) as TabProps[]
+          }
+          selected={selectedTab}
+          onSelect={setSelectedTab}
+          mode={mode}
+          setMode={setMode}
+          canCreateNewView={false}
+          disableKeyboardShortcuts
+        />
 
         <IndexTable
           resourceName={resourceName}
@@ -165,7 +156,6 @@ export function PayoutsTable() {
 
         <div
           style={{
-            borderTop: "1px solid var(--p-color-border)",
             padding: "var(--p-space-200) var(--p-space-400)",
           }}
         >
