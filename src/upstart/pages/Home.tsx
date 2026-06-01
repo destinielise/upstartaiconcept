@@ -51,22 +51,36 @@ export function Home() {
         {/* ── MAIN SCROLL AREA ── */}
         <div className="flex-1 overflow-y-auto min-w-0">
 
-          {/* DIV 1 — Red, text only */}
-          <div
-            className="bg-[#D93025] flex items-center justify-center"
-            style={{ height: '160px', padding: '0 24px' }}
-          >
-            <p className="text-white font-semibold text-center" style={{ fontSize: 'clamp(15px, 2vw, 18px)' }}>
-              Hi Destini, let's get you back on track.
-            </p>
-          </div>
+          {/* Hero — relative container so card can be absolutely positioned */}
+          <div style={{ position: 'relative', height: '370px' }}>
 
-          {/* DIV 2 — White. Card pulls up with negative margin to straddle the red/white boundary */}
-          <div className="bg-white" style={{ minHeight: '206px', paddingBottom: '32px' }}>
-            <div className="mx-auto px-4 md:px-6" style={{ maxWidth: '720px', marginTop: '-52px' }}>
+            {/* DIV 1 — Red, 160px tall, text only */}
+            <div
+              className="bg-[#D93025] flex items-center justify-center"
+              style={{ height: '160px', padding: '0 24px' }}
+            >
+              <p className="text-white font-semibold text-center" style={{ fontSize: 'clamp(15px, 2vw, 18px)' }}>
+                Hi Destini, let's get you back on track.
+              </p>
+            </div>
+
+            {/* DIV 2 — White, fills the rest */}
+            <div className="bg-white" style={{ height: '210px' }} />
+
+            {/* Card — absolutely positioned, straddles the red/white boundary */}
+            <div
+              className="mx-auto px-4 md:px-6"
+              style={{
+                position: 'absolute',
+                top: '88px',
+                left: 0,
+                right: 0,
+                maxWidth: '720px',
+              }}
+            >
               <div className="bg-white rounded-2xl" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.14)', padding: 'clamp(20px, 4vw, 28px)' }}>
                 <div className="flex flex-col gap-4">
-                  {/* Top row: amount left, button right */}
+                  {/* Amount + button */}
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-bold text-neutral-900 leading-none" style={{ fontSize: 'clamp(32px, 5vw, 40px)' }}>$500</p>
@@ -93,7 +107,7 @@ export function Home() {
                     ))}
                   </div>
 
-                  {/* Progress bar — full card width */}
+                  {/* Progress bar — full width */}
                   <div className="w-full">
                     <div className="flex justify-between text-xs text-neutral-400 mb-1.5">
                       <span>$6,600</span>
@@ -106,6 +120,7 @@ export function Home() {
                 </div>
               </div>
             </div>
+
           </div>
 
           {/* Teal section */}
