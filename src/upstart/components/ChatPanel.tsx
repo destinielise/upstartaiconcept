@@ -125,8 +125,7 @@ export function ChatPanel({ open, onClose, mobile = false }: ChatPanelProps) {
       if ((err as Error).name !== 'AbortError') {
         setMessages(prev => {
           const updated = [...prev];
-          const errMsg = (err as Error).message || 'Unknown error';
-          updated[updated.length - 1] = { role: 'assistant', content: `Error: ${errMsg}` };
+          updated[updated.length - 1] = { role: 'assistant', content: "I'm having trouble connecting right now. Please try again in a moment." };
           return updated;
         });
       }
