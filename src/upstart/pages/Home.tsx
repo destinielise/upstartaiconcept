@@ -72,7 +72,7 @@ export function Home() {
               className="mx-auto px-4 md:px-6"
               style={{
                 position: 'absolute',
-                top: '88px',
+                top: '113px',
                 left: 0,
                 right: 0,
                 maxWidth: '720px',
